@@ -1,0 +1,28 @@
+
+services:
+
+  challenge:
+    image: challenge
+    container_name: challenge_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: tail -f /dev/null
+    volumes:
+      - ./:/app
+      - ./downloads:/app/downloads
+    depends_on:
+      - selenium-chrome
+
+
+  selenium-chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium_standalone_chrome
+    volumes:
+      - ./downloads:/app/mydownloads
+    ports:
+      - "4444:4444"
+      - "7900:7900" 
+    environment:
+      - VNC_NO_PASSWORD=0
+      - VNC_PASSWORD=tucontraseña

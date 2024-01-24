@@ -1,0 +1,74 @@
+Challenge 
+
+Objetivo
+--------
+El reto consiste en extraer un archivo Excel de un conjunto de archivos comprimidos en formato ZIP; el arhivo ZIP debe ser obtenido usando Web Scraping, procesarlo con pandas para evitar leer el footer y filas de totalizado, y luego escribir los datos procesados en un archivo CSV.
+
+Requisitos
+----------
+Docker
+  - Construye la imagen utilizando el Dockerfile incluido en la carpeta del Challenge mediante el comando:
+    docker build -t challenge .
+  - Levanta el contenedor donde se ejecutará el proyecto con:
+    docker compose up -d
+Uso 
+---
+  - Accede al contenedor del proyecto con:
+    docker exec -it challenge_container /bin/bash
+  - Ejecuta el script en Python:
+    python3 /app/main.py
+
+Descripción de la Estrategia
+----------------------------
+El código de la estrategia se compone por la class CSVTransformer y sus tres métodos estáticos:
+
+'read_data'
+  - Utiliza la biblioteca estándar zipfile para acceder a un archivo ZIP almacenado en el directorio downloads dentro del proyecto.
+   Utiliza la clase ZipFile para abrir el archivo ZIP en modo lectura ('r') y luego el método .open para leer el archivo Excel específico dentro del ZIP.
+
+'transformations'
+  - Este método toma una lista de tuplas (usualmente las columnas del DataFrame) y realiza transformaciones específicas basadas en su posición en la lista,
+   devolviendo una nueva lista modificada. Con el objetivo de ajustar los nombres de las columnas.
+
+'execute'
+  - El método execute integra las funciones read_data y transformations. Lee los datos, aplica las transformaciones y finalmente guarda el DataFrame procesado en un archivo CSV.
+
+Actualización con Selenium Web Scraping
+---------------------------------------
+Inclusión de `scraper.py` y `main.py` para la extracción de datos mediante Web Scraping utilizando Selenium.
+
+Descripción del scraper
+-----------------------
+Este script utiliza Selenium para navegar a la página web y descargar el archivo ZIP necesario; usando la clase CSVDownloader.
+Se configura el navegador Chrome en modo headless (sin interfaz gráfica) y se gestionan las descargas para asegurar que el archivo se almacene correctamente.
+
+'__init__(self, url=c.url, downloads_dir=c.downloads_dir)'
+  - Constructor de la clase. Inicializa el objeto con la URL a la que se accederá y el directorio de descarga.
+
+'enable_download_in_headless_chrome(self)'
+  - Método para configurar el navegador y permitir descargas en modo headless.
+
+'open_web_page(self)'
+  - Abre la URL especificada usando el webdriver del navegador.
+
+'navigate(self, selector)'
+  - Busca y hace clic en elementos de la página web usando su selector CSS.
+
+'select_option_from_opened_dropdown(self, option_text)'
+  - Selecciona una opción de un menú desplegable basado en su texto visible.
+
+'close_browser(self)'
+  - Cierra el navegador y finaliza la sesión del webdriver de Selenium.
+
+'execute()'
+  - Método estático que coordina el proceso de descarga de archivos.
+
+Descripción del main
+--------------------
+Script principal que ejecuta `scraper.py` para obtener los datos y luego `strategie.py` para procesarlos. 
+Se encarga de coordinar el flujo completo desde la descarga hasta el procesamiento de datos.
+
+Para ejecutar el proyecto completo, usa el siguiente comando dentro del contenedor Docker:
+  python3 /app/main.py
+
+Este comando ejecutará los scripts necesarios en el orden correcto, asegurando la descarga y procesamiento de los datos.
